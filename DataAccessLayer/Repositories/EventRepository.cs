@@ -1,12 +1,8 @@
-﻿using DataAccessLayer.Entities;
+﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DataAccessLayer.Repositories
+
+namespace Infrastructure.Repositories
 {
 	public class EventRepository : IEventRepository
 	{
@@ -14,53 +10,84 @@ namespace DataAccessLayer.Repositories
 
 		public EventRepository(ApplicationDbContext context)
 		{
-			_context = context;
+			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
 		public async Task<IEnumerable<Event>> GetAllEventsAsync()
 		{
-			return await _context.Events
+			var events = await _context.Events
 				.Include(e => e.EventRegistrations)
-				.ThenInclude(er => er.Participant)  
+				.ThenInclude(er => er.Participant)
 				.ToListAsync();
+
+			if (events == null || !events.Any())
+				throw new InvalidOperationException("No events found.");
+
+			return events;
 		}
 
 		public async Task<Event> GetEventByIdAsync(int id)
 		{
-			return await _context.Events
+			if (id <= 0)
+				throw new ArgumentException("Invalid event ID.", nameof(id));
+
+			var eventItem = await _context.Events
 				.Include(e => e.EventRegistrations)
-				.ThenInclude(er => er.Participant)  
+				.ThenInclude(er => er.Participant)
 				.FirstOrDefaultAsync(e => e.Id == id);
+
+			if (eventItem == null)
+				throw new InvalidOperationException($"Event with ID {id} not found.");
+
+			return eventItem;
 		}
 
 		public async Task<Event?> GetEventByNameAsync(string eventName)
 		{
-			return await _context.Events
+			if (string.IsNullOrEmpty(eventName))
+				throw new ArgumentException("Event name cannot be null or empty.", nameof(eventName));
+
+			var eventItem = await _context.Events
 				.Include(e => e.EventRegistrations)
-				.ThenInclude(er => er.Participant)  
+				.ThenInclude(er => er.Participant)
 				.FirstOrDefaultAsync(e => e.Title == eventName);
+
+			if (eventItem == null)
+				throw new InvalidOperationException($"Event with name {eventName} not found.");
+
+			return eventItem;
 		}
 
 		public async Task AddEventAsync(Event newEvent)
 		{
+			if (newEvent == null)
+				throw new ArgumentNullException(nameof(newEvent));
+
 			await _context.Events.AddAsync(newEvent);
-			await _context.SaveChangesAsync();
 		}
 
 		public async Task UpdateEventAsync(Event updatedEvent)
 		{
+			if (updatedEvent == null)
+				throw new ArgumentNullException(nameof(updatedEvent));
+
+			var existingEvent = await GetEventByIdAsync(updatedEvent.Id);
+			if (existingEvent == null)
+				throw new InvalidOperationException($"Event with ID {updatedEvent.Id} not found.");
+
 			_context.Events.Update(updatedEvent);
-			await _context.SaveChangesAsync();
 		}
 
 		public async Task DeleteEventByIdAsync(int eventId)
 		{
+			if (eventId <= 0)
+				throw new ArgumentException("Invalid event ID.", nameof(eventId));
+
 			var eventToDelete = await GetEventByIdAsync(eventId);
-			if (eventToDelete != null)
-			{
-				_context.Events.Remove(eventToDelete);
-				await _context.SaveChangesAsync();
-			}
+			if (eventToDelete == null)
+				throw new InvalidOperationException($"Event with ID {eventId} not found.");
+
+			_context.Events.Remove(eventToDelete);
 		}
 
 		public async Task<IEnumerable<Event>> GetEventsByCriteriesAsync(DateTime? date = null, string? location = null, string? category = null)
@@ -71,23 +98,23 @@ namespace DataAccessLayer.Repositories
 				query = query.Where(e => e.DateTime.Date == date.Value.Date);
 
 			if (!string.IsNullOrEmpty(location))
-				query = query.Where(e => e.Location == location);
+				query = query.Where(e => e.Location.Contains(location));
 
 			if (!string.IsNullOrEmpty(category))
-				query = query.Where(e => e.Category == category);
+				query = query.Where(e => e.Category.Contains(category));
 
-			return await query
-				.Include(e => e.EventRegistrations)
-				.ThenInclude(er => er.Participant) 
-				.ToListAsync();
+			var events = await query.ToListAsync();
+
+			if (events == null || !events.Any())
+				return new List<Event>();
+
+			return events;
 		}
 
 		public async Task<IEnumerable<Participant>> GetParticipantsByEventIdAsync(int eventId)
 		{
 			var eventEntity = await GetEventByIdAsync(eventId);
-			return eventEntity?.EventRegistrations.Select(er => er.Participant) ?? Enumerable.Empty<Participant>();
+			return eventEntity.EventRegistrations.Select(er => er.Participant);
 		}
-
 	}
-
 }

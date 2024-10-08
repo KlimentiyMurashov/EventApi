@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace BusinessLogicLayer.Services
+namespace Application.Services
 {
 	public interface IJwtService
 	{

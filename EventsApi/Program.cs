@@ -1,15 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using DataAccessLayer;
-using DataAccessLayer.Repositories;
-using BusinessLogicLayer.Services;
-using BusinessLogicLayer.MappingProfile;
+using Domain.Entities;
+using Infrastructure.Repositories;
+using Infrastructure.UoW;
+using Application.Services;
+using Application.MappingProfile;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using DataAccessLayer.Entities;
-using Microsoft.Extensions.Configuration;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -95,22 +94,28 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 	options.UseSqlServer(
 	builder.Configuration.GetConnectionString("DefaultConnection"),
-	b => b.MigrationsAssembly("DataAccessLayer")));
+	b => b.MigrationsAssembly("Infrastructure")));
 
 
 // Регистрация репозиториев
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IEventRegistrationRepository, EventRegistrationRepository>();
 
 // Регистрация сервисов
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IParticipantService, ParticipantService>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IEventRegistrationService, EventRegistrationService>();
 builder.Services.AddScoped<JwtService>();
 
+// Регистрация UoW
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 // Регистрация AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(typeof(MappingEventProfile));
+builder.Services.AddAutoMapper(typeof(MappingParticipantProfile));
 
 var app = builder.Build();
 

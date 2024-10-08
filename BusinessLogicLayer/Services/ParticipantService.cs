@@ -1,61 +1,58 @@
 ﻿using AutoMapper;
-using BusinessLogicLayer.DTOs;
-using DataAccessLayer.Entities;
-using DataAccessLayer.Repositories;
+using Application.DTOs;
+using Domain.Entities;
+using Infrastructure.UoW;
 
-namespace BusinessLogicLayer.Services
+namespace Application.Services
 {
 	public class ParticipantService : IParticipantService
 	{
-		private readonly IParticipantRepository _participantRepository;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
 
-		public ParticipantService(IParticipantRepository participantRepository, IMapper mapper)
+		public ParticipantService(IUnitOfWork unitOfWork, IMapper mapper)
 		{
-			_participantRepository = participantRepository;
+			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 		}
 
 		public async Task<IEnumerable<ParticipantDto>> GetAllParticipantsAsync()
 		{
-			var participants = await _participantRepository.GetAllParticipantsAsync();
+			var participants = await _unitOfWork.ParticipantRepository.GetAllParticipantsAsync();
 			return _mapper.Map<IEnumerable<ParticipantDto>>(participants);
 		}
 
 		public async Task<ParticipantDto> GetParticipantByIdAsync(int id)
 		{
-			var participant = await _participantRepository.GetParticipantByIdAsync(id);
+			var participant = await _unitOfWork.ParticipantRepository.GetParticipantByIdAsync(id);
 			return _mapper.Map<ParticipantDto>(participant);
 		}
 
 		public async Task<int> AddParticipantAsync(ParticipantDto participantDto)
 		{
+			if (participantDto == null)
+				throw new ArgumentNullException(nameof(participantDto));
+
 			var participantEntity = _mapper.Map<Participant>(participantDto);
-			await _participantRepository.AddParticipantAsync(participantEntity);
+			await _unitOfWork.ParticipantRepository.AddParticipantAsync(participantEntity);
+			await _unitOfWork.CommitAsync(); 
 			return participantEntity.Id;
 		}
 
-		public async Task<int> UpdateParticipantAsync(ParticipantDto participantDto)
+		public async Task UpdateParticipantAsync(ParticipantDto participantDto)
 		{
-			var participant = _mapper.Map<Participant>(participantDto);
-			await _participantRepository.UpdateParticipantAsync(participant);
-			return participant.Id;
+			if (participantDto == null)
+				throw new ArgumentNullException(nameof(participantDto));
+
+			var participantEntity = _mapper.Map<Participant>(participantDto);
+			await _unitOfWork.ParticipantRepository.UpdateParticipantAsync(participantEntity);
+			await _unitOfWork.CommitAsync(); 
 		}
 
 		public async Task DeleteParticipantAsync(int id)
 		{
-			await _participantRepository.DeleteParticipantByIdAsync(id);
-		}
-
-		public async Task RegisterParticipantForEventAsync(int participantId, int eventId)
-		{
-			await _participantRepository.RegisterParticipantForEventAsync(participantId, eventId);
-		}
-
-		public async Task CancelParticipationAsync(int participantId, int eventId)
-		{
-			await _participantRepository.CancelParticipationAsync(participantId, eventId);
+			await _unitOfWork.ParticipantRepository.DeleteParticipantByIdAsync(id);
+			await _unitOfWork.CommitAsync(); 
 		}
 	}
 }
-

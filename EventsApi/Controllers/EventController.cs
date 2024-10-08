@@ -1,10 +1,6 @@
-﻿using BusinessLogicLayer.DTOs;
-using BusinessLogicLayer.Services;
-using DataAccessLayer.Entities;
-using DataAccessLayer.Repositories;
-using Microsoft.AspNetCore.Authorization;
+﻿using Application.DTOs;
+using Application.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,21 +8,20 @@ public class EventController : ControllerBase
 {
 	private readonly IEventService _eventService;
 
-
 	public EventController(IEventService eventService)
 	{
 		_eventService = eventService;
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetAllEvents()
+	public async Task<ActionResult<IEnumerable<EventDto>>> GetAllEvents()
 	{
 		var events = await _eventService.GetAllEventsAsync();
 		return Ok(events);
 	}
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetEventById(int id)
+	public async Task<ActionResult<EventDto>> GetEventById(int id)
 	{
 		var eventItem = await _eventService.GetEventByIdAsync(id);
 		if (eventItem == null) return NotFound();
@@ -34,22 +29,17 @@ public class EventController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> AddEvent([FromBody] EventDto eventDto)
+	public async Task<ActionResult<int>> AddEvent([FromBody] EventDto eventDto)
 	{
 		var eventId = await _eventService.AddEventAsync(eventDto);
-		return CreatedAtAction(nameof(GetEventById), new { id = eventId }, eventDto);
+		return CreatedAtAction(nameof(GetEventById), new { id = eventId }, eventId);
 	}
 
 	[HttpPut("{id}")]
 	public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventDto eventDto)
 	{
-		if (id != eventDto.Id)
-		{
-			return BadRequest("Id mismatch");
-		}
-
+		if (id != eventDto.Id) return BadRequest();
 		await _eventService.UpdateEventAsync(eventDto);
-
 		return NoContent();
 	}
 
@@ -59,6 +49,24 @@ public class EventController : ControllerBase
 		await _eventService.DeleteEventAsync(id);
 		return NoContent();
 	}
+
+	[HttpGet("filter")]
+	public async Task<IActionResult> GetEventsByCriteria([FromQuery] DateTime? date = null, [FromQuery] string? location = null, [FromQuery] string? category = null)
+	{
+		var events = await _eventService.GetEventsByCriteriesAsync(date, location, category);
+
+		if (!events.Any())
+		{
+			return NotFound("No events found with the specified criteria.");
+		}
+
+		return Ok(events);
+	}
+
+	[HttpPut("{eventId}/add-image")]
+	public async Task<IActionResult> AddImageUrl(int eventId, [FromBody] string imageUrl)
+	{
+		await _eventService.AddImageUrlToEventAsync(eventId, imageUrl);
+		return Ok("Image added successfully.");
+	}
 }
-
-

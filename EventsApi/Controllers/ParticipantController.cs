@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using BusinessLogicLayer.Services;
-using BusinessLogicLayer.DTOs;
+using Application.Services;
+using Application.DTOs;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -14,14 +14,14 @@ public class ParticipantController : ControllerBase
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetAllParticipants()
+	public async Task<ActionResult<IEnumerable<ParticipantDto>>> GetAllParticipants()
 	{
 		var participants = await _participantService.GetAllParticipantsAsync();
 		return Ok(participants);
 	}
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetParticipantById(int id)
+	public async Task<ActionResult<ParticipantDto>> GetParticipantById(int id)
 	{
 		var participant = await _participantService.GetParticipantByIdAsync(id);
 		if (participant == null) return NotFound();
@@ -29,10 +29,10 @@ public class ParticipantController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> AddParticipant([FromBody] ParticipantDto participantDto)
+	public async Task<ActionResult<int>> AddParticipant([FromBody] ParticipantDto participantDto)
 	{
 		var participantId = await _participantService.AddParticipantAsync(participantDto);
-		return CreatedAtAction(nameof(GetParticipantById), new { id = participantId }, participantDto);
+		return CreatedAtAction(nameof(GetParticipantById), new { id = participantId }, participantId);
 	}
 
 	[HttpPut("{id}")]
@@ -49,22 +49,4 @@ public class ParticipantController : ControllerBase
 		await _participantService.DeleteParticipantAsync(id);
 		return NoContent();
 	}
-
-	[HttpPost("{participantId}/register/{eventId}")]
-	public async Task<IActionResult> RegisterParticipant(int participantId, int eventId)
-	{
-		await _participantService.RegisterParticipantForEventAsync(participantId, eventId);
-		return Ok("Participant registered successfully");
-	}
-
-	[HttpDelete("{participantId}/unregister/{eventId}")]
-	public async Task<IActionResult> UnregisterParticipant(int participantId, int eventId)
-	{
-		await _participantService.CancelParticipationAsync(participantId, eventId);
-		return Ok("Participant unregistered successfully");
-	}
 }
-
-
-
-

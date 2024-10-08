@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DataAccessLayer.Migrations
+namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -21,7 +21,7 @@ namespace DataAccessLayer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Event", b =>
+            modelBuilder.Entity("Domain.Entities.Event", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -40,6 +40,9 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -56,7 +59,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.EventRegistration", b =>
+            modelBuilder.Entity("Domain.Entities.EventRegistration", b =>
                 {
                     b.Property<int>("ParticipantId")
                         .HasColumnType("int");
@@ -74,7 +77,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("EventRegistrations");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Participant", b =>
+            modelBuilder.Entity("Domain.Entities.Participant", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -102,7 +105,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Participants");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.RefreshToken", b =>
+            modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -342,15 +345,15 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.EventRegistration", b =>
+            modelBuilder.Entity("Domain.Entities.EventRegistration", b =>
                 {
-                    b.HasOne("DataAccessLayer.Entities.Event", "Event")
+                    b.HasOne("Domain.Entities.Event", "Event")
                         .WithMany("EventRegistrations")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccessLayer.Entities.Participant", "Participant")
+                    b.HasOne("Domain.Entities.Participant", "Participant")
                         .WithMany("EventRegistrations")
                         .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -412,12 +415,12 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Event", b =>
+            modelBuilder.Entity("Domain.Entities.Event", b =>
                 {
                     b.Navigation("EventRegistrations");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Participant", b =>
+            modelBuilder.Entity("Domain.Entities.Participant", b =>
                 {
                     b.Navigation("EventRegistrations");
                 });

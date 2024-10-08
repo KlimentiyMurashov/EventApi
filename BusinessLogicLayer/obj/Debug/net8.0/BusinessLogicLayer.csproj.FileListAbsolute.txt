@@ -15,3 +15,4 @@ C:\Users\User\Desktop\EventsApi\BusinessLogicLayer\obj\Debug\net8.0\BusinessLogi
 C:\Users\User\Desktop\EventsApi\BusinessLogicLayer\obj\Debug\net8.0\ref\BusinessLogicLayer.dll
 C:\Users\User\Desktop\EventsApi\BusinessLogicLayer\bin\Debug\net8.0\BusinessLogicLayer.runtimeconfig.json
 C:\Users\User\Desktop\EventsApi\BusinessLogicLayer\obj\Debug\net8.0\BusinessLogicLayer.genruntimeconfig.cache
+C:\Users\User\Desktop\EventsApi\BusinessLogicLayer\obj\Debug\net8.0\BusinessLogicLayer.sourcelink.json

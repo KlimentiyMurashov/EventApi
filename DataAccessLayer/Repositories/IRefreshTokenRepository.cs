@@ -1,11 +1,6 @@
-﻿using DataAccessLayer.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Entities;
 
-namespace DataAccessLayer.Repositories
+namespace Infrastructure.Repositories
 {
 	public interface IRefreshTokenRepository
 	{

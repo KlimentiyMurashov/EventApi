@@ -1,5 +1,5 @@
-﻿using BusinessLogicLayer.Services;
-using BusinessLogicLayer.DTOs;
+﻿using Application.Services;
+using Application.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 

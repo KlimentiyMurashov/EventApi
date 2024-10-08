@@ -1,16 +1,14 @@
-﻿using BusinessLogicLayer.DTOs;
+﻿using Application.DTOs;
 
 
-namespace BusinessLogicLayer.Services
+namespace Application.Services
 {
 	public interface IParticipantService
 	{
 		Task<IEnumerable<ParticipantDto>> GetAllParticipantsAsync();
 		Task<ParticipantDto> GetParticipantByIdAsync(int id);
 		Task<int> AddParticipantAsync(ParticipantDto participantDto);
-		Task<int> UpdateParticipantAsync(ParticipantDto participantDto);
+		Task UpdateParticipantAsync(ParticipantDto participantDto);
 		Task DeleteParticipantAsync(int id);
-		Task RegisterParticipantForEventAsync(int participantId, int eventId);
-		Task CancelParticipationAsync(int participantId, int eventId);
 	}
 }

@@ -1654,28 +1654,43 @@
           }
         }
       },
-      "BusinessLogicLayer/1.0.0": {
+      "Application/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
           "AutoMapper": "13.0.1",
-          "DataAccessLayer": "1.0.0",
+          "Infrastructure": "1.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.8",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "8.0.8",
           "Microsoft.IdentityModel.Tokens": "8.0.2"
         },
         "compile": {
-          "bin/placeholder/BusinessLogicLayer.dll": {}
+          "bin/placeholder/Application.dll": {}
         },
         "runtime": {
-          "bin/placeholder/BusinessLogicLayer.dll": {}
+          "bin/placeholder/Application.dll": {}
         }
       },
-      "DataAccessLayer/1.0.0": {
+      "Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.8",
+          "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "8.0.8"
+        },
+        "compile": {
+          "bin/placeholder/Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Domain.dll": {}
+        }
+      },
+      "Infrastructure/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
           "AutoMapper": "13.0.1",
+          "Domain": "1.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.8",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "8.0.8",
           "Microsoft.EntityFrameworkCore": "8.0.8",
@@ -1684,10 +1699,10 @@
           "Microsoft.IdentityModel.Tokens": "8.0.2"
         },
         "compile": {
-          "bin/placeholder/DataAccessLayer.dll": {}
+          "bin/placeholder/Infrastructure.dll": {}
         },
         "runtime": {
-          "bin/placeholder/DataAccessLayer.dll": {}
+          "bin/placeholder/Infrastructure.dll": {}
         }
       }
     }
@@ -4481,22 +4496,28 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "BusinessLogicLayer/1.0.0": {
+    "Application/1.0.0": {
       "type": "project",
-      "path": "../BusinessLogicLayer/BusinessLogicLayer.csproj",
-      "msbuildProject": "../BusinessLogicLayer/BusinessLogicLayer.csproj"
+      "path": "../BusinessLogicLayer/Application.csproj",
+      "msbuildProject": "../BusinessLogicLayer/Application.csproj"
     },
-    "DataAccessLayer/1.0.0": {
+    "Domain/1.0.0": {
       "type": "project",
-      "path": "../DataAccessLayer/DataAccessLayer.csproj",
-      "msbuildProject": "../DataAccessLayer/DataAccessLayer.csproj"
+      "path": "../Domain/Domain.csproj",
+      "msbuildProject": "../Domain/Domain.csproj"
+    },
+    "Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../DataAccessLayer/Infrastructure.csproj",
+      "msbuildProject": "../DataAccessLayer/Infrastructure.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "Application >= 1.0.0",
       "AutoMapper >= 13.0.1",
-      "BusinessLogicLayer >= 1.0.0",
-      "DataAccessLayer >= 1.0.0",
+      "Domain >= 1.0.0",
+      "Infrastructure >= 1.0.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.8",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 8.0.8",
       "Microsoft.EntityFrameworkCore >= 8.0.8",
@@ -4534,11 +4555,14 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\User\\Desktop\\EventsApi\\BusinessLogicLayer\\BusinessLogicLayer.csproj": {
-              "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\BusinessLogicLayer\\BusinessLogicLayer.csproj"
+            "C:\\Users\\User\\Desktop\\EventsApi\\BusinessLogicLayer\\Application.csproj": {
+              "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\BusinessLogicLayer\\Application.csproj"
             },
-            "C:\\Users\\User\\Desktop\\EventsApi\\DataAccessLayer\\DataAccessLayer.csproj": {
-              "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\DataAccessLayer\\DataAccessLayer.csproj"
+            "C:\\Users\\User\\Desktop\\EventsApi\\DataAccessLayer\\Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\DataAccessLayer\\Infrastructure.csproj"
+            },
+            "C:\\Users\\User\\Desktop\\EventsApi\\Domain\\Domain.csproj": {
+              "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\Domain\\Domain.csproj"
             }
           }
         }

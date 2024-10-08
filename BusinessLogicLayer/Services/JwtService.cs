@@ -1,11 +1,11 @@
-﻿using DataAccessLayer.Entities;
+﻿using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BusinessLogicLayer.Services
+namespace Application.Services
 {
 	public class JwtService
 	{
@@ -56,7 +56,6 @@ namespace BusinessLogicLayer.Services
 			{
 				Console.WriteLine($"Token to validate: {token}");
 
-				// Создание ожидаемых параметров валидации
 				var validationParameters = new TokenValidationParameters
 				{
 					ValidateIssuer = true,
@@ -66,7 +65,7 @@ namespace BusinessLogicLayer.Services
 					ValidIssuer = jwtSettings.Issuer,
 					ValidAudience = jwtSettings.Audience,
 					IssuerSigningKey = new SymmetricSecurityKey(key),
-					ClockSkew = TimeSpan.Zero // Без временной задержки
+					ClockSkew = TimeSpan.Zero 
 				};
 
 				Console.WriteLine($"Expected Issuer: {jwtSettings.Issuer}");

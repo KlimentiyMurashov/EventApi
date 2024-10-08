@@ -1,6 +1,6 @@
-﻿using BusinessLogicLayer.DTOs;
-using DataAccessLayer.Entities;
-using DataAccessLayer.Repositories;
+﻿using Application.DTOs;
+using Domain.Entities;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BusinessLogicLayer.Services
+namespace Application.Services
 {
 	public class AuthService : IAuthService
 	{

@@ -1,12 +1,7 @@
-﻿using DataAccessLayer.Entities;
+﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DataAccessLayer.Repositories
+namespace Infrastructure.Repositories
 {
 	public class ParticipantRepository : IParticipantRepository
 	{
@@ -14,90 +9,68 @@ namespace DataAccessLayer.Repositories
 
 		public ParticipantRepository(ApplicationDbContext context)
 		{
-			_context = context;
+			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
 		public async Task<IEnumerable<Participant>> GetAllParticipantsAsync()
 		{
-			return await _context.Participants
-				.Include(p => p.EventRegistrations)  
-				.ThenInclude(er => er.Event)        
+			var participants = await _context.Participants
+				.Include(p => p.EventRegistrations)
+				.ThenInclude(er => er.Event)
 				.ToListAsync();
+
+			if (participants == null || !participants.Any())
+				throw new InvalidOperationException("No participants found.");
+
+			return participants;
 		}
 
 		public async Task<Participant> GetParticipantByIdAsync(int id)
 		{
-			return await _context.Participants
+			if (id <= 0)
+				throw new ArgumentException("Invalid participant ID.", nameof(id));
+
+			var participant = await _context.Participants
 				.Include(p => p.EventRegistrations)
 				.ThenInclude(er => er.Event)
 				.FirstOrDefaultAsync(p => p.Id == id);
+
+			if (participant == null)
+				throw new InvalidOperationException($"Participant with ID {id} not found.");
+
+			return participant;
 		}
 
 		public async Task AddParticipantAsync(Participant participant)
 		{
+			if (participant == null)
+				throw new ArgumentNullException(nameof(participant));
+
 			await _context.Participants.AddAsync(participant);
-			await _context.SaveChangesAsync();
 		}
 
 		public async Task UpdateParticipantAsync(Participant updatedParticipant)
 		{
+			if (updatedParticipant == null)
+				throw new ArgumentNullException(nameof(updatedParticipant));
+
+			var existingParticipant = await GetParticipantByIdAsync(updatedParticipant.Id);
+			if (existingParticipant == null)
+				throw new InvalidOperationException($"Participant with ID {updatedParticipant.Id} not found.");
+
 			_context.Participants.Update(updatedParticipant);
-			await _context.SaveChangesAsync();
 		}
 
 		public async Task DeleteParticipantByIdAsync(int id)
 		{
+			if (id <= 0)
+				throw new ArgumentException("Invalid participant ID.", nameof(id));
+
 			var participantToDelete = await GetParticipantByIdAsync(id);
-			if (participantToDelete != null)
-			{
-				_context.Participants.Remove(participantToDelete);
-				await _context.SaveChangesAsync();
-			}
+			if (participantToDelete == null)
+				throw new InvalidOperationException($"Participant with ID {id} not found.");
+
+			_context.Participants.Remove(participantToDelete);
 		}
-
-		public async Task RegisterParticipantForEventAsync(int participantId, int eventId)
-		{
-			var participant = await GetParticipantByIdAsync(participantId);
-			var eventEntity = await _context.Events.FindAsync(eventId);
-
-			if (participant != null && eventEntity != null)
-			{
-				var existingRegistration = await _context.EventRegistrations
-					.FirstOrDefaultAsync(er => er.ParticipantId == participantId && er.EventId == eventId);
-
-				if (existingRegistration == null)
-				{
-					var eventRegistration = new EventRegistration
-					{
-						ParticipantId = participantId,
-						EventId = eventId,
-						RegistrationDate = DateTime.Now
-					};
-
-					_context.EventRegistrations.Add(eventRegistration);
-					await _context.SaveChangesAsync();
-				}
-			}
-		}
-
-		public async Task CancelParticipationAsync(int participantId, int eventId)
-		{
-			var registration = await _context.EventRegistrations
-				.FirstOrDefaultAsync(er => er.ParticipantId == participantId && er.EventId == eventId);
-
-			if (registration != null)
-			{
-				_context.EventRegistrations.Remove(registration);
-				await _context.SaveChangesAsync();
-			}
-		}
-
-		public async Task<IEnumerable<Event>> GetEventsByParticipantIdAsync(int participantId)
-		{
-			var participant = await GetParticipantByIdAsync(participantId);
-			return participant?.EventRegistrations.Select(er => er.Event) ?? Enumerable.Empty<Event>();
-		}
-
 	}
-
 }

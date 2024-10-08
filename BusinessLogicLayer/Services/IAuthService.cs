@@ -1,7 +1,7 @@
-﻿using BusinessLogicLayer.DTOs;
+﻿using Application.DTOs;
 
 
-namespace BusinessLogicLayer.Services
+namespace Application.Services
 {
 	public interface IAuthService
 	{
