@@ -5,9 +5,9 @@ VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventsApi", "EventsApi\EventsApi.csproj", "{3D0CBF8C-63A3-4B2B-AF22-9A9D4B4BFA25}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "DataAccessLayer\Infrastructure.csproj", "{D8417763-A198-492B-81B3-A4B0312A0A36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{D8417763-A198-492B-81B3-A4B0312A0A36}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "BusinessLogicLayer\Application.csproj", "{E023F14C-DBB7-418D-8574-9BDC0ECCE409}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{E023F14C-DBB7-418D-8574-9BDC0ECCE409}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{B33A8EC2-5EC1-4CC0-82E9-1FF5BE921B9F}"
 EndProject

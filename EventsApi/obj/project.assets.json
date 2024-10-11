@@ -4498,8 +4498,8 @@
     },
     "Application/1.0.0": {
       "type": "project",
-      "path": "../BusinessLogicLayer/Application.csproj",
-      "msbuildProject": "../BusinessLogicLayer/Application.csproj"
+      "path": "../Application/Application.csproj",
+      "msbuildProject": "../Application/Application.csproj"
     },
     "Domain/1.0.0": {
       "type": "project",
@@ -4508,8 +4508,8 @@
     },
     "Infrastructure/1.0.0": {
       "type": "project",
-      "path": "../DataAccessLayer/Infrastructure.csproj",
-      "msbuildProject": "../DataAccessLayer/Infrastructure.csproj"
+      "path": "../Infrastructure/Infrastructure.csproj",
+      "msbuildProject": "../Infrastructure/Infrastructure.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -4555,14 +4555,14 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\User\\Desktop\\EventsApi\\BusinessLogicLayer\\Application.csproj": {
-              "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\BusinessLogicLayer\\Application.csproj"
-            },
-            "C:\\Users\\User\\Desktop\\EventsApi\\DataAccessLayer\\Infrastructure.csproj": {
-              "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\DataAccessLayer\\Infrastructure.csproj"
+            "C:\\Users\\User\\Desktop\\EventsApi\\Application\\Application.csproj": {
+              "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\Application\\Application.csproj"
             },
             "C:\\Users\\User\\Desktop\\EventsApi\\Domain\\Domain.csproj": {
               "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\Domain\\Domain.csproj"
+            },
+            "C:\\Users\\User\\Desktop\\EventsApi\\Infrastructure\\Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\Infrastructure\\Infrastructure.csproj"
             }
           }
         }
