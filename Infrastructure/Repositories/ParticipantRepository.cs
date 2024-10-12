@@ -72,5 +72,11 @@ namespace Infrastructure.Repositories
 
 			_context.Participants.Remove(participantToDelete);
 		}
+
+		public async Task<bool> EmailExistsAsync(string email)
+		{
+			return await _context.Participants.AnyAsync(p => p.Email == email);
+		}
+
 	}
 }

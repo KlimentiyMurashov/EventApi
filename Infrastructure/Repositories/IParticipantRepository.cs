@@ -9,6 +9,7 @@ namespace Infrastructure.Repositories
 		Task AddParticipantAsync(Participant participant);
 		Task UpdateParticipantAsync(Participant updatedParticipant);
 		Task DeleteParticipantByIdAsync(int id);
+		Task<bool> EmailExistsAsync(string email);
 	}
 
 }

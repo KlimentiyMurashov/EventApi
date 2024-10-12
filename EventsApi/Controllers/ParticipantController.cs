@@ -1,16 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Application.Services;
 using Application.DTOs;
+using Application.Validators;
+using FluentValidation;
 
 [ApiController]
 [Route("api/[controller]")]
 public class ParticipantController : ControllerBase
 {
 	private readonly IParticipantService _participantService;
+	private readonly IValidator<ParticipantDto> _validator;
 
-	public ParticipantController(IParticipantService participantService)
+	public ParticipantController(IParticipantService participantService, IValidator<ParticipantDto> validator)
 	{
 		_participantService = participantService;
+		_validator = validator;
 	}
 
 	[HttpGet]
@@ -31,6 +35,12 @@ public class ParticipantController : ControllerBase
 	[HttpPost]
 	public async Task<ActionResult<int>> AddParticipant([FromBody] ParticipantDto participantDto)
 	{
+		var validationResult = await _validator.ValidateAsync(participantDto);
+		if (!validationResult.IsValid)
+		{
+			return BadRequest(validationResult.Errors);
+		}
+
 		var participantId = await _participantService.AddParticipantAsync(participantDto);
 		return CreatedAtAction(nameof(GetParticipantById), new { id = participantId }, participantId);
 	}
@@ -39,6 +49,13 @@ public class ParticipantController : ControllerBase
 	public async Task<IActionResult> UpdateParticipant(int id, [FromBody] ParticipantDto participantDto)
 	{
 		if (id != participantDto.Id) return BadRequest();
+		var validationResult = await _validator.ValidateAsync(participantDto);
+
+		if (!validationResult.IsValid)
+		{
+			return BadRequest(validationResult.Errors);
+		}
+
 		await _participantService.UpdateParticipantAsync(participantDto);
 		return NoContent();
 	}

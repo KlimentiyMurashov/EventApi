@@ -116,5 +116,10 @@ namespace Infrastructure.Repositories
 			var eventEntity = await GetEventByIdAsync(eventId);
 			return eventEntity.EventRegistrations.Select(er => er.Participant);
 		}
+
+		public async Task<bool> IsTitleUniqueAsync(string title)
+		{
+			return !await _context.Events.AnyAsync(e => e.Title == title);
+		}
 	}
 }

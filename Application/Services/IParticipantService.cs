@@ -10,5 +10,6 @@ namespace Application.Services
 		Task<int> AddParticipantAsync(ParticipantDto participantDto);
 		Task UpdateParticipantAsync(ParticipantDto participantDto);
 		Task DeleteParticipantAsync(int id);
+		Task<bool> IsEmailUniqueAsync(string email);
 	}
 }

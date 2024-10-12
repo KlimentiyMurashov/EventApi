@@ -151,3 +151,6 @@ C:\Users\User\Desktop\EventsApi\EventsApi\obj\Debug\net8.0\refint\EventsApi.dll
 C:\Users\User\Desktop\EventsApi\EventsApi\obj\Debug\net8.0\EventsApi.pdb
 C:\Users\User\Desktop\EventsApi\EventsApi\obj\Debug\net8.0\EventsApi.genruntimeconfig.cache
 C:\Users\User\Desktop\EventsApi\EventsApi\obj\Debug\net8.0\ref\EventsApi.dll
+C:\Users\User\Desktop\EventsApi\EventsApi\bin\Debug\net8.0\FluentValidation.dll
+C:\Users\User\Desktop\EventsApi\EventsApi\bin\Debug\net8.0\FluentValidation.AspNetCore.dll
+C:\Users\User\Desktop\EventsApi\EventsApi\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll

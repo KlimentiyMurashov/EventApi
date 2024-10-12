@@ -20,6 +20,8 @@ namespace Infrastructure.Repositories
 
 
 		Task<IEnumerable<Participant>> GetParticipantsByEventIdAsync(int eventId);
+		Task<bool> IsTitleUniqueAsync(string title);
+
 	}
 
 }

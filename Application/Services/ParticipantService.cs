@@ -54,5 +54,10 @@ namespace Application.Services
 			await _unitOfWork.ParticipantRepository.DeleteParticipantByIdAsync(id);
 			await _unitOfWork.CommitAsync(); 
 		}
+
+		public async Task<bool> IsEmailUniqueAsync(string email)
+		{
+			return !await _unitOfWork.ParticipantRepository.EmailExistsAsync(email);
+		}
 	}
 }

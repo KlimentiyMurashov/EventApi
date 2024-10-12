@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Application.DTOs;
+using Application.Validators;
+using FluentValidation;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -116,6 +119,11 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Регистрация AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingEventProfile));
 builder.Services.AddAutoMapper(typeof(MappingParticipantProfile));
+
+// Регистрация Validators
+builder.Services.AddTransient<IValidator<EventDto>, EventDtoValidator>();
+builder.Services.AddTransient<IValidator<ParticipantDto>, ParticipantDtoValidator>();
+
 
 var app = builder.Build();
 

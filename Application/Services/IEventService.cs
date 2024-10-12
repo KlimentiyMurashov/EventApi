@@ -12,6 +12,8 @@ namespace Application.Services
 		Task<IEnumerable<EventDto>> GetEventsByCriteriesAsync(DateTime? date = null, string location = null, string category = null);
 		Task<IEnumerable<ParticipantDto>> GetParticipantsByEventIdAsync(int eventId);
 		Task AddImageUrlToEventAsync(int eventId, string imageUrl);
+		Task<bool> IsTitleUniqueAsync(string title);
+
 	}
 
 }

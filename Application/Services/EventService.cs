@@ -85,5 +85,10 @@ namespace Application.Services
 			eventEntity.ImageUrl = imageUrl;
 			await _unitOfWork.CommitAsync();
 		}
+
+		public async Task<bool> IsTitleUniqueAsync(string title)
+		{
+			return await _unitOfWork.EventRepository.IsTitleUniqueAsync(title);
+		}
 	}
 }

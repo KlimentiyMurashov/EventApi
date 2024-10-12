@@ -1,16 +1,20 @@
 ﻿using Application.DTOs;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
 
 [ApiController]
 [Route("api/[controller]")]
 public class EventController : ControllerBase
 {
 	private readonly IEventService _eventService;
+	private readonly IValidator<EventDto> _validator;
 
-	public EventController(IEventService eventService)
+	public EventController(IEventService eventService, IValidator<EventDto> validator)
 	{
 		_eventService = eventService;
+		_validator = validator;
+
 	}
 
 	[HttpGet]
@@ -31,6 +35,12 @@ public class EventController : ControllerBase
 	[HttpPost]
 	public async Task<ActionResult<int>> AddEvent([FromBody] EventDto eventDto)
 	{
+		var validationResult = await _validator.ValidateAsync(eventDto);
+		if (!validationResult.IsValid)
+		{
+			return BadRequest(validationResult.Errors);
+		}
+
 		var eventId = await _eventService.AddEventAsync(eventDto);
 		return CreatedAtAction(nameof(GetEventById), new { id = eventId }, eventId);
 	}
@@ -39,6 +49,13 @@ public class EventController : ControllerBase
 	public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventDto eventDto)
 	{
 		if (id != eventDto.Id) return BadRequest();
+
+		var validationResult = await _validator.ValidateAsync(eventDto);
+		if (!validationResult.IsValid)
+		{
+			return BadRequest(validationResult.Errors);
+		}
+
 		await _eventService.UpdateEventAsync(eventDto);
 		return NoContent();
 	}
