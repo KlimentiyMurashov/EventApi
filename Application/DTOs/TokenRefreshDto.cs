@@ -1,6 +1,6 @@
 ﻿namespace Application.DTOs
 {
-	public class TokenResponse
+	public class TokenRefreshDto
 	{
 		public string AccessToken { get; set; }
 		public string RefreshToken { get; set; }

@@ -1,4 +1,5 @@
-﻿using Infrastructure.Repositories;
+﻿using Application.Interfaces;
+using Infrastructure.Repositories;
 
 namespace Infrastructure.UoW
 {

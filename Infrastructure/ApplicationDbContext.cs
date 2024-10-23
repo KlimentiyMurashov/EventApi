@@ -1,6 +1,5 @@
 ﻿using Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 public class ApplicationDbContext : IdentityDbContext<User>
@@ -33,10 +32,10 @@ public class ApplicationDbContext : IdentityDbContext<User>
 			.HasForeignKey(er => er.EventId);
 
 		modelBuilder.Entity<RefreshToken>()
-	.HasKey(rt => rt.Id); 
+			.HasKey(rt => rt.Id);
 
 		modelBuilder.Entity<RefreshToken>()
-			.HasIndex(rt => rt.Token) 
+			.HasIndex(rt => rt.Token)
 			.IsUnique();
 	}
 }

@@ -1,19 +1,19 @@
 ﻿using Application.DTOs;
-using Application.Services;
+using Application.UseCases;
 using FluentValidation;
 
 namespace Application.Validators
 {
 	public class EventDtoValidator : AbstractValidator<EventDto>
 	{
-		public EventDtoValidator(IEventService eventService)
+		public EventDtoValidator(IsTitleUniqueUseCase _isTitleUniqueUseCase)
 		{
 			RuleFor(x => x.Title)
 			.NotEmpty().WithMessage("Title is required.")
 			.MaximumLength(20).WithMessage("Title cannot exceed 20 characters.")
 			.MustAsync(async (title, cancellation) =>
 			{
-				var titleIsUnique = await eventService.IsTitleUniqueAsync(title);
+				var titleIsUnique = await _isTitleUniqueUseCase.ExecuteAsync(title);
 				return titleIsUnique;
 			}).WithMessage("Title is already in use.");
 

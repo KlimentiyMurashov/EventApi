@@ -1,13 +1,12 @@
 ﻿using Application.DTOs;
-using Application.Services;
+using Application.UseCase;
 using FluentValidation;
-using Infrastructure.Repositories;
 
 namespace Application.Validators
 {
 	public class ParticipantDtoValidator : AbstractValidator<ParticipantDto>
 	{
-		public ParticipantDtoValidator(IParticipantService participantService)
+		public ParticipantDtoValidator(IsEmailUniqueUseCase _isEmailUniqueUseCase)
 		{
 			RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First Name is required.")
@@ -23,16 +22,13 @@ namespace Application.Validators
 			.Must(dob => dob < DateTime.Now).WithMessage("Date of Birth must be in the past.")
 			.Must(dob => dob > DateTime.Now.AddYears(-99)).WithMessage("Participant must be less than 99 years old.");
 
-
-
-
 			RuleFor(x => x.Email)
 			.NotEmpty().WithMessage("Email is required.")
 			.EmailAddress().WithMessage("A valid email is required.")
 			.Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("Email format is not valid.")
 			.MustAsync(async (email, cancellation) =>
 			{
-				var emailIsUnique = await participantService.IsEmailUniqueAsync(email);
+				var emailIsUnique = await _isEmailUniqueUseCase.ExecuteAsync(email);
 				return emailIsUnique;
 			}).WithMessage("Email is already in use.");
 

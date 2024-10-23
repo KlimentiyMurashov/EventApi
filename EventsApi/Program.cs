@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Infrastructure.Repositories;
 using Infrastructure.UoW;
+using Infrastructure;
 using Application.Services;
 using Application.MappingProfile;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +13,9 @@ using Microsoft.OpenApi.Models;
 using Application.DTOs;
 using Application.Validators;
 using FluentValidation;
+using Application.UseCase;
+using Application.UseCases;
+using Application.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,25 +33,33 @@ builder.Services.AddIdentity<User, IdentityRole>()
 
 
 // Настройка аутентификации JWT
-builder.Services.AddAuthentication(options =>
-{
-	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-	options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer(options =>
 	{
-		ValidateIssuer = true,
-		ValidateAudience = true,
-		ValidateLifetime = true,
-		ValidateIssuerSigningKey = true,
-		ValidIssuer = jwtSettings.Issuer,
-		ValidAudience = jwtSettings.Audience,
-		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-		ClockSkew = TimeSpan.Zero
-	};
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			ValidIssuer = jwtSettings.Issuer,
+			ValidAudience = jwtSettings.Audience,
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+			ClockSkew = TimeSpan.Zero
+		};
+	});
+
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowAll",
+		builder =>
+		{
+			builder.AllowAnyOrigin()
+				   .AllowAnyMethod()
+				   .AllowAnyHeader();
+		});
 });
+
 
 // Добавляем роли
 builder.Services.AddAuthorization(options =>
@@ -71,7 +83,7 @@ builder.Services.AddSwaggerGen(c =>
 		Scheme = "Bearer",
 		BearerFormat = "JWT",
 		In = ParameterLocation.Header,
-		Description = "JWT Authorization header using the Bearer scheme."
+		Description = "Введите токен JWT Bearer"
 	});
 
 	c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -108,10 +120,25 @@ builder.Services.AddScoped<IEventRegistrationRepository, EventRegistrationReposi
 
 // Регистрация сервисов
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IParticipantService, ParticipantService>();
-builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IEventRegistrationService, EventRegistrationService>();
-builder.Services.AddScoped<JwtService>();
+
+// Регистрация UseCase
+builder.Services.AddScoped<AddEventRegistrationUseCase>();
+builder.Services.AddScoped<AddEventUseCase>();
+builder.Services.AddScoped<AddImageUrlToEventUseCase>();
+builder.Services.AddScoped<AddParticipantUseCase>();
+builder.Services.AddScoped<DeleteEventUseCase>();
+builder.Services.AddScoped<DeleteParticipantUseCase>();
+builder.Services.AddScoped<GetAllEventsUseCase>();
+builder.Services.AddScoped<GetAllParticipantsUseCase>();
+builder.Services.AddScoped<GetEventByIdUseCase>();
+builder.Services.AddScoped<GetEventsByCriteriesUseCase>();
+builder.Services.AddScoped<GetParticipantByIdUseCase>();
+builder.Services.AddScoped<GetParticipantsByEventIdUseCase>();
+builder.Services.AddScoped<IsEmailUniqueUseCase>();
+builder.Services.AddScoped<IsTitleUniqueUseCase>();
+builder.Services.AddScoped<RemoveEventRegistrationUseCase>();
+builder.Services.AddScoped<UpdateEventUseCase>();
+builder.Services.AddScoped<UpdateParticipantUseCase>();
 
 // Регистрация UoW
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -136,12 +163,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-//Вызов seedata
 //using (var scope = app.Services.CreateScope())
 //{
 //	var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
@@ -151,90 +178,54 @@ app.MapControllers();
 
 app.Run();
 
-//создание админа и юзера
 //static async Task SeedData(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
 //{
-//	try
-//    {
-//        // Создание ролей
-//        if (!await roleManager.RoleExistsAsync("Admin"))
-//        {
-//            await roleManager.CreateAsync(new IdentityRole("Admin"));
-//        }
+//	string[] roles = { "Admin", "User" };
+//	foreach (var role in roles)
+//	{
+//		if (!await roleManager.RoleExistsAsync(role))
+//		{
+//			var roleResult = await roleManager.CreateAsync(new IdentityRole(role));
+//			if (!roleResult.Succeeded)
+//			{
+//				Console.WriteLine($"Ошибка при создании роли {role}: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+//				return;
+//			}
+//		}
+//	}
 
-//        if (!await roleManager.RoleExistsAsync("User"))
-//        {
-//            await roleManager.CreateAsync(new IdentityRole("User"));
-//        }
+//	var adminEmail = "admin@admin.com";
+//	var userEmail = "user@user.com";
 
-//        // Создание администратора
-//        var adminUser = new User 
-//        { 
-//            UserName = "admin@admin.com", 
-//            Email = "admin@admin.com",
-//            Role = "Admin",
-//            RefreshToken = GenerateRefreshToken(), 
-//            RefreshTokenExpiry = DateTime.UtcNow.AddDays(7) 
-//        };
+//	var adminUser = await userManager.FindByEmailAsync(adminEmail);
+//	if (adminUser == null)
+//	{
+//		adminUser = new User { UserName = adminEmail, Email = adminEmail, Role = "Admin" };
+//		var result = await userManager.CreateAsync(adminUser, "Admin123!");
+//		if (result.Succeeded)
+//		{
+//			await userManager.AddToRoleAsync(adminUser, "Admin");
+//		}
+//		else
+//		{
+//			Console.WriteLine($"Ошибка создания администратора: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+//		}
+//	}
 
-//        if (userManager.Users.All(u => u.UserName != adminUser.UserName))
-//        {
-//            var result = await userManager.CreateAsync(adminUser, "Admin123!");
-//            if (result.Succeeded)
-//            {
-//                await userManager.AddToRoleAsync(adminUser, "Admin");
-//            }
-//            else
-//            {
-//                Console.WriteLine($"Error creating admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-//            }
-//        }
-
-//        // Создание обычного пользователя
-//        var normalUser = new User 
-//        { 
-//            UserName = "user@user.com", 
-//            Email = "user@user.com",
-//            Role = "User",
-//            RefreshToken = GenerateRefreshToken(),
-//            RefreshTokenExpiry = DateTime.UtcNow.AddDays(7) 
-//        };
-
-//        if (userManager.Users.All(u => u.UserName != normalUser.UserName))
-//        {
-//            var result = await userManager.CreateAsync(normalUser, "User123!");
-//            if (result.Succeeded)
-//            {
-//                await userManager.AddToRoleAsync(normalUser, "User");
-//            }
-//            else
-//            {
-//                Console.WriteLine($"Error creating normal user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-//            }
-//        }
-
-//        var users = await userManager.Users.ToListAsync();
-//        var roles = await roleManager.Roles.ToListAsync();
-
-//        Console.WriteLine("Users:");
-//        foreach (var user in users)
-//        {
-//            Console.WriteLine($"User: {user.UserName}, Email: {user.Email}, Role: {user.Role}");
-//        }
-
-//        Console.WriteLine("Roles:");
-//        foreach (var role in roles)
-//        {
-//            Console.WriteLine($"Role: {role.Name}");
-//        }
-//    }
-//    catch (Exception ex)
-//    {
-//        Console.WriteLine($"Exception occurred: {ex.Message}");
-//    }
+//	var normalUser = await userManager.FindByEmailAsync(userEmail);
+//	if (normalUser == null)
+//	{
+//		normalUser = new User { UserName = userEmail, Email = userEmail, Role = "User" };
+//		var result = await userManager.CreateAsync(normalUser, "User123!");
+//		if (result.Succeeded)
+//		{
+//			await userManager.AddToRoleAsync(normalUser, "User");
+//		}
+//		else
+//		{
+//			Console.WriteLine($"Ошибка создания пользователя: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+//		}
+//	}
 //}
 
-//static string GenerateRefreshToken()
-//{
-//    return Guid.NewGuid().ToString();
-//}
+

@@ -1025,8 +1025,8 @@
       "Application/1.0.0": {
         "dependencies": {
           "AutoMapper": "13.0.1",
+          "Domain": "1.0.0",
           "FluentValidation.AspNetCore": "11.3.0",
-          "Infrastructure": "1.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.8",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "8.0.8",
           "Microsoft.IdentityModel.Tokens": "8.0.2"
@@ -1047,6 +1047,7 @@
       },
       "Infrastructure/1.0.0": {
         "dependencies": {
+          "Application": "1.0.0",
           "AutoMapper": "13.0.1",
           "Domain": "1.0.0",
           "FluentValidation.AspNetCore": "11.3.0",

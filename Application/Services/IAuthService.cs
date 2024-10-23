@@ -5,8 +5,10 @@ namespace Application.Services
 {
 	public interface IAuthService
 	{
-		Task<TokenResponse> GenerateTokensAsync(string userId, string email);
-		Task<TokenResponse> RefreshTokensAsync(string refreshToken);
+		Task<string> GenerateAccessTokenAsync(User user);
+		string GenerateRefreshToken();
+		Task<AuthResponseDto> RefreshTokenAsync(string token, string refreshToken);
 	}
+
 
 }

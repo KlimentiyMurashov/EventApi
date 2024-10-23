@@ -2,18 +2,19 @@
 using Application.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
 	private readonly UserManager<User> _userManager;
-	private readonly JwtService _jwtService; 
+	private readonly IAuthService _authService;
 
-	public AuthController(SignInManager<User> signInManager, UserManager<User> userManager, JwtService jwtService)
+	public AuthController(UserManager<User> userManager, IAuthService authService)
 	{
 		_userManager = userManager;
-		_jwtService = jwtService;
+		_authService = authService;
 	}
 
 	[HttpPost("login")]
@@ -25,10 +26,26 @@ public class AuthController : ControllerBase
 		var result = await _userManager.CheckPasswordAsync(user, loginRequest.Password);
 		if (!result) return Unauthorized("Invalid email or password.");
 
-		var accessToken = _jwtService.GenerateAccessToken(user);
-		var refreshToken = _jwtService.GenerateRefreshToken();
+		var accessToken = await _authService.GenerateAccessTokenAsync(user);
+		var refreshToken = _authService.GenerateRefreshToken();
+
+		user.RefreshToken = refreshToken;
+		await _userManager.UpdateAsync(user);
 
 		return Ok(new { AccessToken = accessToken, RefreshToken = refreshToken });
 	}
 
+	[HttpPost("refresh-token")]
+	public async Task<IActionResult> RefreshToken([FromBody] TokenRefreshDto tokenRefreshRequest)
+	{
+		try
+		{
+			var result = await _authService.RefreshTokenAsync(tokenRefreshRequest.AccessToken, tokenRefreshRequest.RefreshToken);
+			return Ok(result);
+		}
+		catch (SecurityTokenException ex)
+		{
+			return Unauthorized(ex.Message);
+		}
+	}
 }

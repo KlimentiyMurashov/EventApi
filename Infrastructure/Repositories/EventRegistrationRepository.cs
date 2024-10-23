@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -22,12 +23,6 @@ namespace Infrastructure.Repositories
 		{
 			var existingRegistration = await _context.EventRegistrations
 					.FirstOrDefaultAsync(r => r.ParticipantId == registration.ParticipantId && r.EventId == registration.EventId);
-
-			if (existingRegistration != null)
-			{
-				throw new InvalidOperationException("Registration for this participant and event already exists.");
-			}
-
 			await _context.EventRegistrations.AddAsync(registration);
 		}
 

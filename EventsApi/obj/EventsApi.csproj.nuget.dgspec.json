@@ -28,8 +28,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\User\\Desktop\\EventsApi\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\Infrastructure\\Infrastructure.csproj"
+              "C:\\Users\\User\\Desktop\\EventsApi\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\Domain\\Domain.csproj"
               }
             }
           }
@@ -296,6 +296,9 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
+              "C:\\Users\\User\\Desktop\\EventsApi\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\Application\\Application.csproj"
+              },
               "C:\\Users\\User\\Desktop\\EventsApi\\Domain\\Domain.csproj": {
                 "projectPath": "C:\\Users\\User\\Desktop\\EventsApi\\Domain\\Domain.csproj"
               }

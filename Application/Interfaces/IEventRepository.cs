@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 
 
-namespace Infrastructure.Repositories
+namespace Application.Interfaces
 {
 	public interface IEventRepository
 	{

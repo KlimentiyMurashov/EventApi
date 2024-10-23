@@ -16,3 +16,5 @@ C:\Users\User\Desktop\EventsApi\Infrastructure\obj\Debug\net8.0\refint\Infrastru
 C:\Users\User\Desktop\EventsApi\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
 C:\Users\User\Desktop\EventsApi\Infrastructure\obj\Debug\net8.0\Infrastructure.genruntimeconfig.cache
 C:\Users\User\Desktop\EventsApi\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
+C:\Users\User\Desktop\EventsApi\Infrastructure\bin\Debug\net8.0\Application.dll
+C:\Users\User\Desktop\EventsApi\Infrastructure\bin\Debug\net8.0\Application.pdb

@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -19,74 +20,40 @@ namespace Infrastructure.Repositories
 				.Include(e => e.EventRegistrations)
 				.ThenInclude(er => er.Participant)
 				.ToListAsync();
-
-			if (events == null || !events.Any())
-				throw new InvalidOperationException("No events found.");
-
 			return events;
 		}
 
 		public async Task<Event> GetEventByIdAsync(int id)
 		{
-			if (id <= 0)
-				throw new ArgumentException("Invalid event ID.", nameof(id));
-
 			var eventItem = await _context.Events
 				.Include(e => e.EventRegistrations)
 				.ThenInclude(er => er.Participant)
 				.FirstOrDefaultAsync(e => e.Id == id);
-
-			if (eventItem == null)
-				throw new InvalidOperationException($"Event with ID {id} not found.");
-
 			return eventItem;
 		}
 
 		public async Task<Event?> GetEventByNameAsync(string eventName)
 		{
-			if (string.IsNullOrEmpty(eventName))
-				throw new ArgumentException("Event name cannot be null or empty.", nameof(eventName));
-
 			var eventItem = await _context.Events
 				.Include(e => e.EventRegistrations)
 				.ThenInclude(er => er.Participant)
 				.FirstOrDefaultAsync(e => e.Title == eventName);
-
-			if (eventItem == null)
-				throw new InvalidOperationException($"Event with name {eventName} not found.");
-
 			return eventItem;
 		}
 
 		public async Task AddEventAsync(Event newEvent)
 		{
-			if (newEvent == null)
-				throw new ArgumentNullException(nameof(newEvent));
-
 			await _context.Events.AddAsync(newEvent);
 		}
 
 		public async Task UpdateEventAsync(Event updatedEvent)
 		{
-			if (updatedEvent == null)
-				throw new ArgumentNullException(nameof(updatedEvent));
-
-			var existingEvent = await GetEventByIdAsync(updatedEvent.Id);
-			if (existingEvent == null)
-				throw new InvalidOperationException($"Event with ID {updatedEvent.Id} not found.");
-
 			_context.Events.Update(updatedEvent);
 		}
 
 		public async Task DeleteEventByIdAsync(int eventId)
 		{
-			if (eventId <= 0)
-				throw new ArgumentException("Invalid event ID.", nameof(eventId));
-
 			var eventToDelete = await GetEventByIdAsync(eventId);
-			if (eventToDelete == null)
-				throw new InvalidOperationException($"Event with ID {eventId} not found.");
-
 			_context.Events.Remove(eventToDelete);
 		}
 

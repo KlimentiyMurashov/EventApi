@@ -1,83 +1,110 @@
 ﻿using Application.DTOs;
 using Domain.Entities;
-using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Application.Services
 {
 	public class AuthService : IAuthService
 	{
+		private readonly JwtSettings _jwtSettings;
 		private readonly UserManager<User> _userManager;
-		private readonly IConfiguration _configuration;
-		private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-		public AuthService(UserManager<User> userManager, IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository)
+		public AuthService(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager)
 		{
+			_jwtSettings = jwtSettings.Value;
 			_userManager = userManager;
-			_configuration = configuration;
-			_refreshTokenRepository = refreshTokenRepository;
 		}
 
-		public async Task<TokenResponse> GenerateTokensAsync(string userId, string email)
+		public async Task<string> GenerateAccessTokenAsync(User user)
 		{
-			var jwtSettings = _configuration.GetSection("JwtSettings").Get<JwtSettings>();
+			if (user == null)
+				throw new ArgumentNullException(nameof(user));
+			
+			var tokenHandler = new JwtSecurityTokenHandler();
+			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("e5d4c67d9822a63c9259d0196c940d2b3890a56f7a1b5dbb2e8c3e7d6f1a30c0"));
 
-			var claims = new List<Claim>
-		{
-			new Claim(JwtRegisteredClaimNames.Sub, userId),
-			new Claim(JwtRegisteredClaimNames.Email, email),
-			new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-		};
-
-			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
-			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-			var accessToken = new JwtSecurityToken(
-				issuer: jwtSettings.Issuer,
-				audience: jwtSettings.Audience,
-				claims: claims,
-				expires: DateTime.UtcNow.AddMinutes(jwtSettings.AccessTokenExpiryMinutes),
-				signingCredentials: creds
-			);
-
-			var accessTokenString = new JwtSecurityTokenHandler().WriteToken(accessToken);
-
-			var refreshToken = new RefreshToken
+			var tokenDescriptor = new SecurityTokenDescriptor
 			{
-				Token = Guid.NewGuid().ToString(),
-				UserId = userId,
-				ExpiryDate = DateTime.UtcNow.AddDays(jwtSettings.RefreshTokenExpiryDays)
+				Subject = new ClaimsIdentity(new Claim[]
+				{
+				new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+				new Claim(ClaimTypes.Email, user.Email),
+				new Claim(ClaimTypes.Role, user.Role)
+				}),
+				Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpiryMinutes),
+				IssuedAt = DateTime.UtcNow, 
+				NotBefore = DateTime.UtcNow.AddSeconds(-1),
+				Issuer = _jwtSettings.Issuer,
+				Audience = _jwtSettings.Audience,
+				SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
 			};
 
-			await _refreshTokenRepository.SaveRefreshTokenAsync(refreshToken);
-
-			return new TokenResponse
-			{
-				AccessToken = accessTokenString,
-				RefreshToken = refreshToken.Token
-			};
+			var token = tokenHandler.CreateToken(tokenDescriptor);
+			return tokenHandler.WriteToken(token);
 		}
 
-		public async Task<TokenResponse> RefreshTokensAsync(string refreshToken)
+		public string GenerateRefreshToken()
 		{
-			var existingToken = await _refreshTokenRepository.GetRefreshTokenAsync(refreshToken);
-
-			if (existingToken == null || existingToken.ExpiryDate < DateTime.UtcNow || existingToken.IsRevoked || existingToken.IsUsed)
+			var randomNumber = new byte[32];
+			using (var rng = RandomNumberGenerator.Create())
 			{
-				throw new UnauthorizedAccessException("Invalid refresh token.");
+				rng.GetBytes(randomNumber);
+				return Convert.ToBase64String(randomNumber);
 			}
+		}
 
-			var user = await _userManager.FindByIdAsync(existingToken.UserId);
+		public async Task<AuthResponseDto> RefreshTokenAsync(string token, string refreshToken)
+		{
+			var principal = GetPrincipalFromExpiredToken(token);
+			var userId = principal.Identity.Name;
 
-			existingToken.IsUsed = true;
-			await _refreshTokenRepository.UpdateRefreshTokenAsync(existingToken);
+			var user = await _userManager.FindByIdAsync(userId);
 
-			return await GenerateTokensAsync(user.Id, user.Email);
+			if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiry <= DateTime.UtcNow)
+				throw new SecurityTokenException("Invalid refresh token");
+
+			var newAccessToken = await GenerateAccessTokenAsync(user);
+			var newRefreshToken = GenerateRefreshToken();
+
+			user.RefreshToken = newRefreshToken;
+			await _userManager.UpdateAsync(user);
+
+			return new AuthResponseDto
+			{
+				AccessToken = newAccessToken,
+				RefreshToken = newRefreshToken
+			};
+		}
+
+		private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+		{
+			var tokenHandler = new JwtSecurityTokenHandler();
+			var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
+
+			var tokenValidationParameters = new TokenValidationParameters
+			{
+				ValidateIssuer = true,
+				ValidateAudience = true,
+				ValidateIssuerSigningKey = true,
+				ValidIssuer = _jwtSettings.Issuer,
+				ValidAudience = _jwtSettings.Audience,
+				IssuerSigningKey = new SymmetricSecurityKey(key),
+				ValidateLifetime = false
+			};
+
+			var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+			var jwtSecurityToken = securityToken as JwtSecurityToken;
+
+			if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+				throw new SecurityTokenException("Invalid token");
+
+			return principal;
 		}
 	}
 

@@ -42,7 +42,7 @@
 				Message = exception.Message,
 				Details = context.Response.StatusCode == StatusCodes.Status500InternalServerError
 							? "Internal server error"
-							: exception.StackTrace
+							: null
 			};
 
 			return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(result));
