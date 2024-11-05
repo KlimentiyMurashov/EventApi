@@ -9,17 +9,25 @@ namespace Application.UseCases
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
+		private readonly IsTitleUniqueUseCase isTitleUniqueUseCase;
 
-		public UpdateEventUseCase(IUnitOfWork unitOfWork, IMapper mapper)
+		public UpdateEventUseCase(IUnitOfWork unitOfWork, IMapper mapper, IsTitleUniqueUseCase isTitleUniqueUseCase)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
+			this.isTitleUniqueUseCase = isTitleUniqueUseCase;
 		}
 
 		public async Task ExecuteAsync(EventDto eventDto)
 		{
 			if (eventDto == null)
 				throw new ArgumentNullException(nameof(eventDto));
+
+			var titleIsUnique = await isTitleUniqueUseCase.ExecuteAsync(eventDto.Title);
+			if (!titleIsUnique)
+			{
+				throw new InvalidOperationException("Title is already in use.");
+			}
 
 			var existingEvent = await _unitOfWork.EventRepository.GetEventByIdAsync(eventDto.Id);
 

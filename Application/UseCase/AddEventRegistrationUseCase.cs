@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Application.Interfaces;
+using Application.Requests;
 
 namespace Application.UseCase
 {
@@ -12,15 +13,15 @@ namespace Application.UseCase
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task ExecuteAsync(int participantId, int eventId)
+		public async Task ExecuteAsync(AddEventRegistrationRequest request)
 		{
-			if (participantId <= 0 || eventId <= 0)
+			if (request.ParticipantId <= 0 || request.EventId <= 0)
 			{
 				throw new ArgumentNullException("Participant ID and Event ID must be greater than zero.");
 			}
 
-			var participant = await _unitOfWork.ParticipantRepository.GetParticipantByIdAsync(participantId);
-			var eventEntity = await _unitOfWork.EventRepository.GetEventByIdAsync(eventId);
+			var participant = await _unitOfWork.ParticipantRepository.GetParticipantByIdAsync(request.ParticipantId);
+			var eventEntity = await _unitOfWork.EventRepository.GetEventByIdAsync(request.EventId);
 
 			if (participant == null || eventEntity == null)
 			{
@@ -29,8 +30,8 @@ namespace Application.UseCase
 
 			var registrationEntity = new EventRegistration
 			{
-				ParticipantId = participantId,
-				EventId = eventId,
+				ParticipantId = request.ParticipantId,
+				EventId = request.EventId,
 				RegistrationDate = DateTime.UtcNow
 			};
 

@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using AutoMapper;
 using Application.Interfaces;
+using Application.Requests;
 
 
 namespace Application.UseCase
@@ -16,10 +17,10 @@ namespace Application.UseCase
 			_mapper = mapper;
 		}
 
-		public async Task<IEnumerable<EventDto>> ExecuteAsync(DateTime? date = null, string? location = null, string? category = null)
+		public async Task<IEnumerable<EventDto>> ExecuteAsync(GetEventsByCriteriesRequest request)
 		{
 
-			var events = await _unitOfWork.EventRepository.GetEventsByCriteriesAsync(date, location, category);
+			var events = await _unitOfWork.EventRepository.GetEventsByCriteriesAsync(request.Date, request.Location, request.Category);
 
 			if (events == null || !events.Any())
 			{

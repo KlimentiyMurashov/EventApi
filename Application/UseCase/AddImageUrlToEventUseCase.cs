@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Requests;
 
 namespace Application.UseCases
 {
@@ -11,19 +12,19 @@ namespace Application.UseCases
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task ExecuteAsync(int eventId, string imageUrl)
+		public async Task ExecuteAsync(AddImageUrlToEventRequest request)
 		{
-			if (eventId <= 0)
+			if (request.EventId <= 0)
 				throw new ArgumentNullException("Event ID must be greater than zero.");
 
-			var eventEntity = await _unitOfWork.EventRepository.GetEventByIdAsync(eventId);
+			var eventEntity = await _unitOfWork.EventRepository.GetEventByIdAsync(request.EventId);
 
 			if (eventEntity == null)
 			{
 				throw new InvalidOperationException("Event not found.");
 			}
 
-			eventEntity.ImageUrl = imageUrl;
+			eventEntity.ImageUrl = request.ImageUrl;
 			await _unitOfWork.CommitAsync();
 		}
 	}

@@ -3,7 +3,7 @@ using Domain.Entities;
 using Infrastructure.Repositories;
 using Infrastructure.UoW;
 using Infrastructure;
-using Application.Services;
+using Infrastructure.Services;
 using Application.MappingProfile;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -139,6 +139,8 @@ builder.Services.AddScoped<IsTitleUniqueUseCase>();
 builder.Services.AddScoped<RemoveEventRegistrationUseCase>();
 builder.Services.AddScoped<UpdateEventUseCase>();
 builder.Services.AddScoped<UpdateParticipantUseCase>();
+builder.Services.AddScoped<LoginUseCase>();
+
 
 // Регистрация UoW
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Requests;
 
 
 
@@ -13,14 +14,14 @@ namespace Application.UseCase
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task ExecuteAsync(int participantId, int eventId)
+		public async Task ExecuteAsync(RemoveEventRegistrationRequest request)
 		{
-			if (participantId <= 0 || eventId <= 0)
+			if (request.ParticipantId <= 0 || request.EventId <= 0)
 			{
 				throw new ArgumentNullException("Participant ID and Event ID must be greater than zero.");
 			}
 
-			var registration = await _unitOfWork.EventRegistrationRepository.GetRegistrationAsync(participantId, eventId);
+			var registration = await _unitOfWork.EventRegistrationRepository.GetRegistrationAsync(request.ParticipantId, request.EventId);
 			if (registration == null)
 			{
 				throw new InvalidOperationException("Registration not found.");

@@ -1,4 +1,5 @@
-﻿using Application.UseCase;
+﻿using Application.Requests;
+using Application.UseCase;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -15,16 +16,16 @@ public class EventRegistrationController : ControllerBase
 	}
 
 	[HttpPost("register")]
-	public async Task<IActionResult> AddRegistration(int participantId, int eventId)
+	public async Task<IActionResult> AddRegistration(AddEventRegistrationRequest request)
 	{
-		await _addEventRegistrationUseCase.ExecuteAsync(participantId, eventId);
+		await _addEventRegistrationUseCase.ExecuteAsync(request);
 		return Ok("Registration added successfully.");
 	}
 
 	[HttpDelete("unregister")]
-	public async Task<IActionResult> RemoveRegistration(int participantId, int eventId)
+	public async Task<IActionResult> RemoveRegistration(RemoveEventRegistrationRequest request)
 	{
-		await _removeEventRegistrationUseCase.ExecuteAsync(participantId, eventId);
+		await _removeEventRegistrationUseCase.ExecuteAsync(request);
 		return Ok("Registration removed successfully.");
 	}
 }

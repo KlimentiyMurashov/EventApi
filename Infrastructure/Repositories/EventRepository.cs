@@ -11,7 +11,7 @@ namespace Infrastructure.Repositories
 
 		public EventRepository(ApplicationDbContext context)
 		{
-			_context = context ?? throw new ArgumentNullException(nameof(context));
+			_context = context;
 		}
 
 		public async Task<IEnumerable<Event>> GetAllEventsAsync()

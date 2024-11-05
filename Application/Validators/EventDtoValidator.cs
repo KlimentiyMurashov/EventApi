@@ -10,12 +10,8 @@ namespace Application.Validators
 		{
 			RuleFor(x => x.Title)
 			.NotEmpty().WithMessage("Title is required.")
-			.MaximumLength(20).WithMessage("Title cannot exceed 20 characters.")
-			.MustAsync(async (title, cancellation) =>
-			{
-				var titleIsUnique = await _isTitleUniqueUseCase.ExecuteAsync(title);
-				return titleIsUnique;
-			}).WithMessage("Title is already in use.");
+			.MaximumLength(20).WithMessage("Title cannot exceed 20 characters.");
+	
 
 			RuleFor(x => x.Description)
 				.MaximumLength(500).WithMessage("Description cannot exceed 500 characters.");

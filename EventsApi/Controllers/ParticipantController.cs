@@ -58,7 +58,7 @@ public class ParticipantController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public async Task<IActionResult> UpdateParticipant(int id, [FromBody] ParticipantDto participantDto)
+	public async Task<IActionResult> UpdateParticipant([FromBody] ParticipantDto participantDto)
 	{
 		var validationResult = await _validator.ValidateAsync(participantDto);
 		if (!validationResult.IsValid)

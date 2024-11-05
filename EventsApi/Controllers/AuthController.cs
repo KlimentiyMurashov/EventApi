@@ -1,51 +1,39 @@
-﻿using Application.Services;
+﻿using Infrastructure.Services;
 using Application.DTOs;
+using Application.Interfaces;
+using Application.Requests;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Application.UseCase;
+using Azure.Core;
+using Domain.Entities;
 
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-	private readonly UserManager<User> _userManager;
 	private readonly IAuthService _authService;
+	private readonly LoginUseCase _loginUseCase;
 
-	public AuthController(UserManager<User> userManager, IAuthService authService)
+	public AuthController(IAuthService authService, LoginUseCase loginUseCase)
 	{
-		_userManager = userManager;
 		_authService = authService;
+		_loginUseCase = loginUseCase;
 	}
 
 	[HttpPost("login")]
-	public async Task<IActionResult> Login([FromBody] LoginDto loginRequest)
+	public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
 	{
-		var user = await _userManager.FindByEmailAsync(loginRequest.Email);
-		if (user == null) return Unauthorized("Invalid email or password.");
-
-		var result = await _userManager.CheckPasswordAsync(user, loginRequest.Password);
-		if (!result) return Unauthorized("Invalid email or password.");
-
-		var accessToken = await _authService.GenerateAccessTokenAsync(user);
-		var refreshToken = _authService.GenerateRefreshToken();
-
-		user.RefreshToken = refreshToken;
-		await _userManager.UpdateAsync(user);
-
-		return Ok(new { AccessToken = accessToken, RefreshToken = refreshToken });
+		var authResponse = await _loginUseCase.ExecuteAsync(loginDto);
+		return Ok(authResponse);
 	}
 
 	[HttpPost("refresh-token")]
 	public async Task<IActionResult> RefreshToken([FromBody] TokenRefreshDto tokenRefreshRequest)
 	{
-		try
-		{
+		
 			var result = await _authService.RefreshTokenAsync(tokenRefreshRequest.AccessToken, tokenRefreshRequest.RefreshToken);
-			return Ok(result);
-		}
-		catch (SecurityTokenException ex)
-		{
-			return Unauthorized(ex.Message);
-		}
+			return Ok(result);		
 	}
 }

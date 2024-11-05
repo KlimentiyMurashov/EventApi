@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using Application.UseCases;
 using Application.UseCase;
+using Application.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -44,6 +46,7 @@ public class EventController : ControllerBase
 		return Ok(events);
 	}
 
+	[Authorize(Roles = "Admin")]
 	[HttpGet("{id}")]
 	public async Task<ActionResult<EventDto>> GetEventById(int id)
 	{
@@ -65,7 +68,7 @@ public class EventController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventDto eventDto)
+	public async Task<IActionResult> UpdateEvent([FromBody] EventDto eventDto)
 	{
 		var validationResult = await _validator.ValidateAsync(eventDto);
 		if (!validationResult.IsValid)
@@ -85,16 +88,16 @@ public class EventController : ControllerBase
 	}
 
 	[HttpGet("filter")]
-	public async Task<IActionResult> GetEventsByCriteria([FromQuery] DateTime? date = null, [FromQuery] string? location = null, [FromQuery] string? category = null)
+	public async Task<IActionResult> GetEventsByCriteria([FromQuery] GetEventsByCriteriesRequest request)
 	{
-		var events = await _getEventsByCriteriesUseCase.ExecuteAsync(date, location, category);
+		var events = await _getEventsByCriteriesUseCase.ExecuteAsync(request);
 		return Ok(events);
 	}
 
 	[HttpPut("{eventId}/add-image")]
-	public async Task<IActionResult> AddImageUrl(int eventId, [FromBody] string imageUrl)
+	public async Task<IActionResult> AddImageUrl(AddImageUrlToEventRequest request)
 	{
-		await _addImageUrlUseCase.ExecuteAsync(eventId, imageUrl);
+		await _addImageUrlUseCase.ExecuteAsync(request);
 		return Ok("Image added successfully.");
 	}
 }

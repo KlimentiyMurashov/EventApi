@@ -25,12 +25,8 @@ namespace Application.Validators
 			RuleFor(x => x.Email)
 			.NotEmpty().WithMessage("Email is required.")
 			.EmailAddress().WithMessage("A valid email is required.")
-			.Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("Email format is not valid.")
-			.MustAsync(async (email, cancellation) =>
-			{
-				var emailIsUnique = await _isEmailUniqueUseCase.ExecuteAsync(email);
-				return emailIsUnique;
-			}).WithMessage("Email is already in use.");
+			.Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("Email format is not valid.");
+			
 
 		}
 	}
