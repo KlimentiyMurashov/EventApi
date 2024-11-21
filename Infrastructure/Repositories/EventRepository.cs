@@ -49,6 +49,7 @@ namespace Infrastructure.Repositories
 		public async Task UpdateEventAsync(Event updatedEvent)
 		{
 			_context.Events.Update(updatedEvent);
+			await _context.SaveChangesAsync();
 		}
 
 		public async Task DeleteEventByIdAsync(int eventId)
@@ -86,7 +87,7 @@ namespace Infrastructure.Repositories
 
 		public async Task<bool> IsTitleUniqueAsync(string title)
 		{
-			return !await _context.Events.AnyAsync(e => e.Title == title);
+			return await _context.Events.AnyAsync(e => e.Title == title);
 		}
 	}
 }

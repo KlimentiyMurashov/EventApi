@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Requests;
 
 namespace Application.UseCases
 {
@@ -11,18 +12,18 @@ namespace Application.UseCases
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task ExecuteAsync(int id)
+		public async Task ExecuteAsync(DeleteEventRequest request)
 		{
-			if(id <= 0) 
+			if(request.EventId <= 0) 
 				throw new ArgumentNullException("Event ID must be greater than zero.");
 
-			var eventItem = await _unitOfWork.EventRepository.GetEventByIdAsync(id);
+			var eventItem = await _unitOfWork.EventRepository.GetEventByIdAsync(request.EventId);
 			if (eventItem == null)
 			{
 				throw new InvalidOperationException("Event not found.");
 			}
 
-			await _unitOfWork.EventRepository.DeleteEventByIdAsync(id);
+			await _unitOfWork.EventRepository.DeleteEventByIdAsync(request.EventId);
 			await _unitOfWork.CommitAsync();
 		}
 	}

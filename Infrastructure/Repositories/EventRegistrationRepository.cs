@@ -29,6 +29,7 @@ namespace Infrastructure.Repositories
 		public async Task RemoveRegistrationAsync(EventRegistration registration)
 		{
 			_context.EventRegistrations.Remove(registration);
+			await _context.SaveChangesAsync();
 		}
 	}
 

@@ -2,6 +2,8 @@
 using Application.DTOs;
 using Domain.Entities;
 using Application.Interfaces;
+using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.UseCases
 {
@@ -9,13 +11,13 @@ namespace Application.UseCases
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
-		private readonly IsTitleUniqueUseCase _isTitleUniqueUseCase;
+		private readonly IValidator<EventDto> _validator;
 
-		public AddEventUseCase(IUnitOfWork unitOfWork, IMapper mapper, IsTitleUniqueUseCase isTitleUniqueUseCase)
+		public AddEventUseCase(IUnitOfWork unitOfWork, IMapper mapper, IValidator<EventDto> validator)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
-			_isTitleUniqueUseCase = isTitleUniqueUseCase;
+			_validator = validator;
 		}
 
 		public async Task<int> ExecuteAsync(EventDto eventDto)
@@ -23,7 +25,11 @@ namespace Application.UseCases
 			if (eventDto == null)
 				throw new ArgumentNullException(nameof(eventDto));
 
-			var titleIsUnique = await _isTitleUniqueUseCase.ExecuteAsync(eventDto.Title);
+			var validationResult = await _validator.ValidateAsync(eventDto);
+			if (!validationResult.IsValid)
+				throw new InvalidOperationException("Validation failed: " + validationResult.Errors);
+
+			var titleIsUnique = await _unitOfWork.EventRepository.IsTitleUniqueAsync(eventDto.Title);
 			if (!titleIsUnique)
 			{
 				throw new InvalidOperationException("Title is already in use."); 

@@ -47,12 +47,6 @@ public class ParticipantController : ControllerBase
 	[HttpPost]
 	public async Task<ActionResult<int>> AddParticipant([FromBody] ParticipantDto participantDto)
 	{
-		var validationResult = await _validator.ValidateAsync(participantDto);
-		if (!validationResult.IsValid)
-		{
-			return BadRequest(validationResult.Errors);
-		}
-
 		var participantId = await _addParticipantUseCase.ExecuteAsync(participantDto);
 		return CreatedAtAction(nameof(GetParticipantById), new { id = participantId }, participantId);
 	}
@@ -60,12 +54,6 @@ public class ParticipantController : ControllerBase
 	[HttpPut("{id}")]
 	public async Task<IActionResult> UpdateParticipant([FromBody] ParticipantDto participantDto)
 	{
-		var validationResult = await _validator.ValidateAsync(participantDto);
-		if (!validationResult.IsValid)
-		{
-			return BadRequest(validationResult.Errors);
-		}
-
 		await _updateParticipantUseCase.ExecuteAsync(participantDto);
 		return NoContent();
 	}

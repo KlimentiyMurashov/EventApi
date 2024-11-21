@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Application.UseCase;
-using Azure.Core;
 using Domain.Entities;
 
 [ApiController]
@@ -32,8 +31,7 @@ public class AuthController : ControllerBase
 	[HttpPost("refresh-token")]
 	public async Task<IActionResult> RefreshToken([FromBody] TokenRefreshDto tokenRefreshRequest)
 	{
-		
-			var result = await _authService.RefreshTokenAsync(tokenRefreshRequest.AccessToken, tokenRefreshRequest.RefreshToken);
-			return Ok(result);		
+		var result = await _authService.RefreshTokenAsync(tokenRefreshRequest.AccessToken, tokenRefreshRequest.RefreshToken);
+		return Ok(result);
 	}
 }

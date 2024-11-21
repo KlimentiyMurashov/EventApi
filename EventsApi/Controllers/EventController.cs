@@ -57,12 +57,6 @@ public class EventController : ControllerBase
 	[HttpPost]
 	public async Task<ActionResult<int>> AddEvent([FromBody] EventDto eventDto)
 	{
-		var validationResult = await _validator.ValidateAsync(eventDto);
-		if (!validationResult.IsValid)
-		{
-			return BadRequest(validationResult.Errors);
-		}
-
 		var eventId = await _addEventUseCase.ExecuteAsync(eventDto);
 		return CreatedAtAction(nameof(GetEventById), new { id = eventId }, eventId);
 	}
@@ -70,20 +64,14 @@ public class EventController : ControllerBase
 	[HttpPut("{id}")]
 	public async Task<IActionResult> UpdateEvent([FromBody] EventDto eventDto)
 	{
-		var validationResult = await _validator.ValidateAsync(eventDto);
-		if (!validationResult.IsValid)
-		{
-			return BadRequest(validationResult.Errors);
-		}
-
 		await _updateEventUseCase.ExecuteAsync(eventDto);
 		return NoContent();
 	}
 
 	[HttpDelete("{id}")]
-	public async Task<IActionResult> DeleteEvent(int id)
+	public async Task<IActionResult> DeleteEvent(DeleteEventRequest request)
 	{
-		await _deleteEventUseCase.ExecuteAsync(id);
+		await _deleteEventUseCase.ExecuteAsync(request);
 		return NoContent();
 	}
 

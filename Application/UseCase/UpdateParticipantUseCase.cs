@@ -2,6 +2,7 @@
 using AutoMapper;
 using Domain.Entities;
 using Application.Interfaces;
+using FluentValidation;
 
 namespace Application.UseCase
 {
@@ -9,11 +10,13 @@ namespace Application.UseCase
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
+		private readonly IValidator<ParticipantDto> _validator;
 
-		public UpdateParticipantUseCase(IUnitOfWork unitOfWork, IMapper mapper)
+		public UpdateParticipantUseCase(IUnitOfWork unitOfWork, IMapper mapper, IValidator<ParticipantDto> validator)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
+			_validator = validator;
 		}
 
 		public async Task ExecuteAsync(ParticipantDto participantDto)
@@ -27,6 +30,10 @@ namespace Application.UseCase
 			{
 				throw new InvalidOperationException("Participant not found.");
 			}
+
+			var validationResult = await _validator.ValidateAsync(participantDto);
+			if (!validationResult.IsValid)
+				throw new InvalidOperationException("Validation failed: " + validationResult.Errors);
 
 			var participantEntity = _mapper.Map<Participant>(participantDto);
 			await _unitOfWork.ParticipantRepository.UpdateParticipantAsync(participantEntity);
